@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Estacionamento</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f4f7f6; color: #333; padding: 20px; }
+    h1 { text-align: center; margin-bottom: 20px; color: #1a252f; }
+    
+    .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .card h2 { margin-bottom: 15px; color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 5px; font-size: 1.2rem; }
+    
+    .form-group { margin-bottom: 12px; }
+    label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 0.9rem; }
+    input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; }
+    
+    button { width: 100%; padding: 10px; background-color: #27ae60; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 5px; }
+    button:hover { background-color: #219653; }
+    button.btn-saida { background-color: #e74c3c; }
+    button.btn-saida:hover { background-color: #c0392b; }
+
+    .full-width { grid-column: 1 / -1; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #34495e; color: white; }
+    tr:nth-child(even) { background-color: #f9f9f9; }
+
+    .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; color: white; }
+    .bg-livre { background-color: #27ae60; }
+    .bg-ocupada { background-color: #e74c3c; }
+  </style>
+</head>
+<body>
+
+  <h1>Gestão de Estacionamento</h1>
+
+  <div class="container">
+    
+    <!-- CADASTRO DE CLIENTES -->
+    <div class="card">
+      <h2>1. Cadastrar Cliente</h2>
+      <form id="form-cliente">
+        <div class="form-group">
+          <label>Nome Completo</label>
+          <input type="text" id="cli-nome" required>
+        </div>
+        <div class="form-group">
+          <label>CPF</label>
+          <input type="text" id="cli-cpf" placeholder="000.000.000-00" required>
+        </div>
+        <div class="form-group">
+          <label>Telefone</label>
+          <input type="text" id="cli-tel" placeholder="(00) 00000-0000" required>
+        </div>
+        <button type="submit">Cadastrar Cliente</button>
+      </form>
+    </div>
+
+    <!-- CADASTRO DE VEÍCULOS -->
+    <div class="card">
+      <h2>2. Cadastrar Veículo</h2>
+      <form id="form-veiculo">
+        <div class="form-group">
+          <label>Placa</label>
+          <input type="text" id="vei-placa" placeholder="ABC1D23" required>
+        </div>
+        <div class="form-group">
+          <label>Cliente (Proprietário)</label>
+          <select id="vei-cliente">
+            <option value="">-- Cliente Avulso --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Marca / Modelo</label>
+          <input type="text" id="vei-modelo" placeholder="Ex: VW Gol" required>
+        </div>
+        <div class="form-group">
+          <label>Cor</label>
+          <input type="text" id="vei-cor" required>
+        </div>
+        <div class="form-group">
+          <label>Tipo</label>
+          <select id="vei-tipo" required>
+            <option value="CARRO">CARRO</option>
+            <option value="MOTO">MOTO</option>
+            <option value="CAMINHONETE">CAMINHONETE</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tamanho</label>
+          <select id="vei-tamanho" required>
+            <option value="PEQUENO">PEQUENO</option>
+            <option value="MEDIO">MÉDIO</option>
+            <option value="GRANDE">GRANDE</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Ano</label>
+          <input type="number" id="vei-ano" placeholder="2022" required>
+        </div>
+        <button type="submit">Cadastrar Veículo</button>
+      </form>
+    </div>
+
+    <!-- ENTRADA DE VEÍCULO -->
+    <div class="card">
+      <h2>3. Registrar Entrada</h2>
+      <form id="form-entrada">
+        <div class="form-group">
+          <label>Veículo (Placa)</label>
+          <select id="ent-placa" required>
+            <option value="">-- Selecione o Veículo --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Vaga Disponível</label>
+          <select id="ent-vaga" required>
+            <option value="">-- Selecione a Vaga --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Modalidade / Tipo de Cobrança</label>
+          <select id="ent-cobranca" required>
+            <option value="HORA">Hora (R\$ 10,00/h)</option>
+            <option value="DIARIA">Diária (R\$ 50,00/dia)</option>
+            <option value="ANUAL">Anual (Isento na catraca)</option>
+          </select>
+        </div>
+        <button type="submit">Dar Entrada</button>
+      </form>
+    </div>
+
+    <!-- MAPA DE VAGAS -->
+    <div class="card">
+      <h2>4. Vagas do Estacionamento</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Tipo</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tb-vagas"></tbody>
+      </table>
+    </div>
+
+    <!-- MOVIMENTAÇÕES E SAÍDA -->
+    <div class="card full-width">
+      <h2>5. Veículos Estacionados (Pátio Atual)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Placa</th>
+            <th>Vaga</th>
+            <th>Entrada</th>
+            <th>Cobrança</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody id="tb-patio"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script>
+    // --- DADOS INICIAIS (SIMULANDO BANCO DE DADOS LOCAL) ---
+    let clientes = JSON.parse(localStorage.getItem('est_clientes')) || [];
+    let veiculos = JSON.parse(localStorage.getItem('est_veiculos')) || [];
+    let registros = JSON.parse(localStorage.getItem('est_registros')) || [];
+    let vagas = JSON.parse(localStorage.getItem('est_vagas')) || [
+      { id: 1, codigo: 'V01', tipo: 'NORMAL', status: 'LIVRE' },
+      { id: 2, codigo: 'V02', tipo: 'NORMAL', status: 'LIVRE' },
+      { id: 3, codigo: 'P01', tipo: 'PREFERENCIAL', status: 'LIVRE' },
+      { id: 4, codigo: 'P02', tipo: 'PCD', status: 'LIVRE' }
+    ];
+
+    const tabelaPrecos = { HORA: 10.00, DIARIA: 50.00, ANUAL: 0.00 };
+
+    function salvarDados() {
+      localStorage.setItem('est_clientes', JSON.stringify(clientes));
+      localStorage.setItem('est_veiculos', JSON.stringify(veiculos));
+      localStorage.setItem('est_registros', JSON.stringify(registros));
+      localStorage.setItem('est_vagas', JSON.stringify(vagas));
+      renderizar();
+    }
+
+    // --- CADASTROS ---
+    document.getElementById('form-cliente').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const novoCliente = {
+        id: Date.now(),
+        nome: document.getElementById('cli-nome').value,
+        cpf: document.getElementById('cli-cpf').value,
+        telefone: document.getElementById('cli-tel').value
+      };
+      clientes.push(novoCliente);
+      salvarDados();
+      e.target.reset();
+      alert('Cliente cadastrado com sucesso!');
+    });
+
+    document.getElementById('form-veiculo').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const placa = document.getElementById('vei-placa').value.toUpperCase().trim();
+      
+      if (veiculos.some(v => v.placa === placa)) {
+        alert('Esta placa já está cadastrada!');
+        return;
+      }
+
+      const novoVeiculo = {
+        placa: placa,
+        clienteId: document.getElementById('vei-cliente').value || null,
+        modelo: document.getElementById('vei-modelo').value,
+        cor: document.getElementById('vei-cor').value,
+        tipo: document.getElementById('vei-tipo').value,
+        tamanho: document.getElementById('vei-tamanho').value,
+        ano: document.getElementById('vei-ano').value
+      };
+      veiculos.push(novoVeiculo);
+      salvarDados();
+      e.target.reset();
+      alert('Veículo cadastrado!');
+    });
+
+    // --- OPERAÇÕES DE ENTRADA E SAÍDA ---
+    document.getElementById('form-entrada').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const placa = document.getElementById('ent-placa').value;
+      const vagaId = parseInt(document.getElementById('ent-vaga').value);
+      const cobranca = document.getElementById('ent-cobranca').value;
+
+      // Ocupa a vaga
+      const vaga = vagas.find(v => v.id === vagaId);
+      vaga.status = 'OCUPADA';
+
+      // Cria registro
+      registros.push({
+        id: Date.now(),
+        placa: placa,
+        vagaCodigo: vaga.codigo,
+        vagaId: vaga.id,
+        entrada: new Date().toISOString(),
+        cobranca: cobranca,
+        status: 'ABERTO'
+      });
+
+      salvarDados();
+      e.target.reset();
+      alert(`Entrada confirmada para a vaga ${vaga.codigo}!`);
+    });
+
+    function registrarSaida(regId) {
+      const reg = registros.find(r => r.id === regId);
+      const vaga = vagas.find(v => v.id === reg.vagaId);
+      
+      const dataEntrada = new Date(reg.entrada);
+      const dataSaida = new Date();
+      const diffHoras = Math.max(1, Math.ceil(Math.abs(dataSaida - dataEntrada) / 36e5));
+
+      let valorTotal = 0;
+      if (reg.cobranca === 'HORA') valorTotal = diffHoras * tabelaPrecos.HORA;
+      else if (reg.cobranca === 'DIARIA') valorTotal = Math.ceil(diffHoras / 24) * tabelaPrecos.DIARIA;
+
+      // Libera vaga e encerra registro
+      vaga.status = 'LIVRE';
+      reg.status = 'CONCLUIDO';
+      reg.saida = dataSaida.toISOString();
+      reg.valorPago = valorTotal;
+
+      salvarDados();
+      alert(`--- RECIBO DE SAÍDA ---\nPlaca: ${reg.placa}\nTempo cobrado: ${diffHoras} hora(s)\nTotal Pago: R$ ${valorTotal.toFixed(2)}`);
+    }
+
+    // --- RENDERIZAÇÃO DA INTERFACE ---
+    function renderizar() {
+      // Atualiza Select de Clientes
+      const selectCli = document.getElementById('vei-cliente');
+      selectCli.innerHTML = '<option value="">-- Cliente Avulso --</option>';
+      clientes.forEach(c => selectCli.innerHTML += `<option value="${c.id}">${c.nome} (${c.cpf})</option>`);
+
+      // Atualiza Select de Veículos na Entrada
+      const selectVei = document.getElementById('ent-placa');
+      selectVei.innerHTML = '<option value="">-- Selecione o Veículo --</option>';
+      veiculos.forEach(v => {
+        const estaEstacionado = registros.some(r => r.placa === v.placa && r.status === 'ABERTO');
+        if (!estaEstacionado) {
+          selectVei.innerHTML += `<option value="${v.placa}">${v.placa} - ${v.modelo}</option>`;
+        }
+      });
+
+      // Atualiza Select de Vagas Disponíveis
+      const selectVaga = document.getElementById('ent-vaga');
+      selectVaga.innerHTML = '<option value="">-- Selecione a Vaga --</option>';
+      vagas.filter(v => v.status === 'LIVRE').forEach(v => {
+        selectVaga.innerHTML += `<option value="${v.id}">${v.codigo} (${v.tipo})</option>`;
+      });
+
+      // Tabela de Vagas
+      const tbVagas = document.getElementById('tb-vagas');
+      tbVagas.innerHTML = '';
+      vagas.forEach(v => {
+        const badgeClass = v.status === 'LIVRE' ? 'bg-livre' : 'bg-ocupada';
+        tbVagas.innerHTML += `
+          <tr>
+            <td>${v.codigo}</td>
+            <td>${v.tipo}</td>
+            <td><span class="badge ${badgeClass}">${v.status}</span></td>
+          </tr>`;
+      });
+
+      // Tabela de Pátio (Veículos em Aberto)
+      const tbPatio = document.getElementById('tb-patio');
+      tbPatio.innerHTML = '';
+      registros.filter(r => r.status === 'ABERTO').forEach(r => {
+        const dataFormatada = new Date(r.entrada).toLocaleString('pt-BR');
+        tbPatio.innerHTML += `
+          <tr>
+            <td><strong>${r.placa}</strong></td>
+            <td>${r.vagaCodigo}</td>
+            <td>${dataFormatada}</td>
+            <td>${r.cobranca}</td>
+            <td><button class="btn-saida" onclick="registrarSaida(${r.id})">Registrar Saída</button></td>
+          </tr>`;
+      });
+    }
+
+    // Renderização Inicial
+    renderizar();
+  </script>
+</body>
+</html>
